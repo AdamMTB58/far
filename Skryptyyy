@@ -1,8 +1,18 @@
+-- Load the Orion library
 local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
-local Window = OrionLib:MakeWindow({Name = "BGM", HidePremium = false, SaveConfig = true, ConfigFolder = "OrionTest", IntroEnabled = false})
 
+-- Create the main window
+local Window = OrionLib:MakeWindow({
+    Name = "Bubble Gum Mayhem :x",
+    HidePremium = false,
+    SaveConfig = true,
+    ConfigFolder = "OrionTest",
+    IntroEnabled = false
+})
+
+-- Create Farm and Teleport tabs
 local FarmTab = Window:MakeTab({
-    Name = "Farm",
+    Name = "Farming",
     Icon = "rbxassetid://4483345998",
     PremiumOnly = false
 })
@@ -13,24 +23,55 @@ local TeleportTab = Window:MakeTab({
     PremiumOnly = false
 })
 
+local MiscTab = Window:MakeTab({
+    Name = "Misc",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
+MiscTab:AddButton({
+    Name = "InfiniteYield",
+    Callback = function()
+        local scriptURL = 'https://raw.githubusercontent.com/78n/SimpleSpy/main/SimpleSpyBeta.lua'
+        local success, result = pcall(function()
+            loadstring(game:HttpGet(scriptURL))()
+        end)
+    end
+})
+
+
+-- Create a section in the Farm tab
 local Section = FarmTab:AddSection({
     Name = "Event Farm"
 })
 
+-- Initialize a variable to control pumpkin farming
 local farmPumpkins = false
 
+-- Add a toggle to enable/disable pumpkin farming
 local toggle = FarmTab:AddToggle({
-    Name = "Farm Pumpkins",
+    Name = "Automatically Pick Up Pumpkins",
     Default = false,
     Callback = function(Value)
         farmPumpkins = Value
     end    
 })
 
+-- Define coordinates for teleportation to chests
+local chestCoordinates = {
+    Vector3.new(50, 902, -246),
+    Vector3.new(15, 21095, -232),
+    Vector3.new(2, 32141, -195)
+}
+
+local Section = TeleportTab:AddSection({
+    Name = "Overworld"
+})
+
+-- Add buttons for teleporting to various locations
 TeleportTab:AddButton({
     Name = "Teleport to Overworld",
     Callback = function()
-        -- Teleport the player to the coordinates (-253, 11, 957)
         local player = game.Players.LocalPlayer
         if player then
             local character = player.Character
@@ -43,46 +84,6 @@ TeleportTab:AddButton({
         end
     end    
 })
-
-TeleportTab:AddButton({
-    Name = "Teleport to Fall Carnival",
-    Callback = function()
-        -- Teleport the player to the coordinates (-140, 47, -229)
-        local player = game.Players.LocalPlayer
-        if player then
-            local character = player.Character
-            if character then
-                local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
-                if humanoidRootPart then
-                    humanoidRootPart.CFrame = CFrame.new(-140, 47, -229)
-                end
-            end
-        end
-    end    
-})
-
-TeleportTab:AddButton({
-    Name = "Teleport to Egg",
-    Callback = function()
-        -- Teleport the player to the coordinates (-29, 25, 916)
-        local player = game.Players.LocalPlayer
-        if player then
-            local character = player.Character
-            if character then
-                local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
-                if humanoidRootPart then
-                    humanoidRootPart.CFrame = CFrame.new(-29, 30, 916)
-                end
-            end
-        end
-    end    
-})
-
-local chestCoordinates = {
-    Vector3.new(50, 902, -246),
-    Vector3.new(15, 21095, -232),
-    Vector3.new(2, 32141, -195)
-}
 
 TeleportTab:AddButton({
     Name = "Teleport to Chests",
@@ -103,10 +104,46 @@ TeleportTab:AddButton({
     end    
 })
 
--- Wzorzec nazwy dyni
+local Section = TeleportTab:AddSection({
+    Name = "Fall Event"
+})
+
+TeleportTab:AddButton({
+    Name = "Teleport to Fall Carnival",
+    Callback = function()
+        local player = game.Players.LocalPlayer
+        if player then
+            local character = player.Character
+            if character then
+                local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+                if humanoidRootPart then
+                    humanoidRootPart.CFrame = CFrame.new(-140, 47, -229)
+                end
+            end
+        end
+    end    
+})
+
+TeleportTab:AddButton({
+    Name = "Teleport to Egg",
+    Callback = function()
+        local player = game.Players.LocalPlayer
+        if player then
+            local character = player.Character
+            if character then
+                local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+                if humanoidRootPart then
+                    humanoidRootPart.CFrame = CFrame.new(-29, 30, 916)
+                end
+            end
+        end
+    end    
+})
+
+-- Define a pattern for pumpkin names
 local namePattern = "^Fall Carnival%-Spawn%/.+$"
 
--- Funkcja do wyszukiwania i teleportacji gracza do losowej dyni
+-- Function to teleport to a random pumpkin
 local function teleportToRandomDynia()
     if farmPumpkins then
         local pickupsFolder = workspace:FindFirstChild("Pickups")
@@ -119,42 +156,44 @@ local function teleportToRandomDynia()
             end
 
             if #dynie > 0 then
-                -- Wylosuj losową dynię
+                -- Select a random pumpkin
                 local randomDynia = dynie[math.random(1, #dynie)]
-                
-                -- Pobierz pozycję gracza (zmień 'Player' na nazwę gracza w grze)
                 local player = game.Players.LocalPlayer
+
                 if player then
                     local character = player.Character
                     if character then
                         local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
                         if humanoidRootPart then
-                            -- Pobierz pozycję "Root" wybranej dyni
                             local dyniaRoot = randomDynia:FindFirstChild("Root")
                             if dyniaRoot then
-                                -- Ustaw pozycję gracza nieco wyżej niż pozycja "Root" dyni
-                                local teleportOffset = Vector3.new(0, 5, 0) -- Dostosuj wartości X, Y, i Z, aby ustawić odpowiednią wysokość
+                                local teleportOffset = Vector3.new(0, 5, 0)
                                 humanoidRootPart.CFrame = dyniaRoot.CFrame + teleportOffset
                             else
-                                print("Nie znaleziono atrybutu 'Root' w wybranej dyni.")
+                                print("No 'Root' attribute found in the selected pumpkin.")
                             end
                         end
                     end
                 end
             else
-                print("Nie znaleziono żadnej dyni pasującej do wzorca nazwy.")
+                print("No pumpkins matching the name pattern found.")
             end
         else
-            print("Brak folderu 'Pickups' w workspace.")
+            print("No 'Pickups' folder in workspace.")
         end
     end
 end
 
--- Funkcja do cyklicznego wywoływania teleportacji gracza
-local teleportInterval = 0.5 -- co ile sekund
+-- Set the teleportation interval (in seconds)
+local teleportInterval = 0.20
+
+-- Create a loop to repeatedly teleport to pumpkins
 while true do
     teleportToRandomDynia()
     wait(teleportInterval)
 end
 
+
+
+-- Initialize the Orion library
 OrionLib:Init()
